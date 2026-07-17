@@ -1,0 +1,16 @@
+---
+layout: layout.njk
+title: Projects
+permalink: /projects/
+---
+<h2>Projects</h2>
+<ul>
+  {% for project in collections.projects %}
+    <li>
+      <a href="{{ project | projectUrl }}">{{ project.data.title }}</a>
+      <span>{{ project.data.year }}</span>
+      <span>{{ project.data.language }}</span>
+      <span>{{ project.data.repo }}</span>
+    </li>
+  {% endfor %}
+</ul>

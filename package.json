@@ -1,0 +1,14 @@
+{
+  "name": "rabbitrun",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "eleventy",
+    "sync": "node scripts/sync.mjs"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.2",
+    "@11ty/eleventy-plugin-rss": "^2.0.4"
+  }
+}
