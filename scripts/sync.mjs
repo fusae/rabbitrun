@@ -4,6 +4,7 @@ import { access, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:f
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 
 const ROOT = process.cwd();
 const DRAFTS_DIR = path.join(ROOT, "drafts");
@@ -302,6 +303,41 @@ function bodyFromMarkdown(markdown) {
   return parseFrontmatter(markdown).body.trim();
 }
 
+const WECHAT_ERROR_MARKERS = [
+  "环境异常",
+  "Refreshing too often",
+  "请在微信客户端打开",
+  "参数错误",
+  "该内容已被发布者删除",
+];
+
+export function getWechatErrorPageReasons(markdown, frontmatter = parseFrontmatter(markdown).data) {
+  const reasons = [];
+  const title = String(frontmatter.title ?? "");
+  if (title.includes("Weixin Official Accounts Platform")) {
+    reasons.push("title=Weixin Official Accounts Platform");
+  }
+
+  const body = parseFrontmatter(markdown).body;
+  const substantiveLength = body
+    .replace(/^#{1,6}\s.*$/gm, "")
+    .replace(/\*/g, "")
+    .replace(/\s/g, "").length;
+  if (substantiveLength < 40) {
+    reasons.push(`body substantive chars < 40 (${substantiveLength})`);
+  }
+
+  for (const marker of WECHAT_ERROR_MARKERS) {
+    if (body.includes(marker)) reasons.push(`contains ${marker}`);
+  }
+
+  return reasons;
+}
+
+export function isWechatErrorPage(markdown, frontmatter = parseFrontmatter(markdown).data) {
+  return getWechatErrorPageReasons(markdown, frontmatter).length > 0;
+}
+
 async function syncQueue() {
   if (!(await pathExists(QUEUE_PATH))) {
     console.log("[queue] sync-queue.txt not found");
@@ -340,6 +376,16 @@ async function syncQueue() {
     }
     try {
       const converted = await convertQueuedUrl(normalized, source);
+      const parsed = parseFrontmatter(converted);
+      if (source === "wechat") {
+        const errorReasons = getWechatErrorPageReasons(converted, parsed.data);
+        if (errorReasons.length > 0) {
+          console.log(`[queue] failed ${normalized}: wechat error page (${errorReasons.join("; ")})`);
+          keep.push(line);
+          failed += 1;
+          continue;
+        }
+      }
       const title = titleFromMarkdown(converted, normalized);
       const body = bodyFromMarkdown(converted);
       const fields = {
@@ -377,4 +423,6 @@ async function main() {
   }
 }
 
-await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}
