@@ -2,10 +2,10 @@
 title: "OpenClaw制作Agent实战教程：打造一个AI资讯日报Agent"
 date: 2026-07-17
 source: wechat
-original_url: "https://mp.weixin.qq.com/s?__biz=MzUxODQwNjMwOQ%3D%3D&idx=1&mid=2247484600&sn=4a3f6423afa526b274b6f26a2d473653"
+original_url: https://mp.weixin.qq.com/s?__biz=MzUxODQwNjMwOQ%3D%3D&idx=1&mid=2247484600&sn=4a3f6423afa526b274b6f26a2d473653
 locale: zh
 ---
- 很多人装了 OpenClaw，第一反应还是“像 ChatGPT 一样聊天”。但自动化是它的强项之一：让 AI 按你定义的流程，定时完成任务。我昨晚做了一个“AI 资讯日报 Agent”，每天早上自动汇总信息、生成日报并发送给我。
+很多人装了 OpenClaw，第一反应还是“像 ChatGPT 一样聊天”。但自动化是它的强项之一：让 AI 按你定义的流程，定时完成任务。我昨晚做了一个“AI 资讯日报 Agent”，每天早上自动汇总信息、生成日报并发送给我。
 
 ## 1. 先想清楚：你要它做什么
 
@@ -52,3 +52,20 @@ locale: zh
 ## 总结与行动
 
 做 Agent 的核心不是“堆工具”，而是把任务拆成清晰的步骤，再让 AI 自动化执行。你不需要写复杂代码，只要把目标、流程、模板说清楚，就能做出一个稳定的 Agent。如果你也想开始，建议从一个最简单的自动化任务做起，然后逐步扩展。做出来之后，你会发现：AI 不只是陪聊，它真的可以“替你工作”。
+
+![](/images/2026-07-17-openclaw-agent-ai-agent/01.jpg)
+
+![](/images/2026-07-17-openclaw-agent-ai-agent/02.png)
+
+![](/images/2026-07-17-openclaw-agent-ai-agent/03.jpg)
+
+![](/images/2026-07-17-openclaw-agent-ai-agent/04.jpg)
+
+![](/images/2026-07-17-openclaw-agent-ai-agent/05.jpg)
+
+![](/images/2026-07-17-openclaw-agent-ai-agent/06.jpg)
+
+![](/images/2026-07-17-openclaw-agent-ai-agent/07.png)
+
+![](/images/2026-07-17-openclaw-agent-ai-agent/08.png)
+
