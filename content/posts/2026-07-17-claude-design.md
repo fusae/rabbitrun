@@ -2,10 +2,10 @@
 title: "Claude Design一出，设计师要失业了？"
 date: 2026-07-17
 source: wechat
-original_url: "https://mp.weixin.qq.com/s?__biz=MzUxODQwNjMwOQ%3D%3D&idx=1&mid=2247484733&sn=186ce84038db566bf3a752135b9126f9"
+original_url: https://mp.weixin.qq.com/s?__biz=MzUxODQwNjMwOQ%3D%3D&idx=1&mid=2247484733&sn=186ce84038db566bf3a752135b9126f9
 locale: zh
 ---
- 昨天凌晨，Anthropic 放了个大招。Claude Design，一个你用嘴说就能出设计的产品。原型、PPT、落地页、一页纸方案，说出来就行。消息出来几小时，Figma 股价直接跌了 6.84%。要知道纳斯达克刚实现 13 连涨，Figma 却在大盘暴涨的背景下被击穿。有网友在 Claude 评论区说：“Claude 彻底摧毁了价值 1 万亿美元的设计行业。”我第一时间冲进去试了。试完，我确实有点慌。
+昨天凌晨，Anthropic 放了个大招。Claude Design，一个你用嘴说就能出设计的产品。原型、PPT、落地页、一页纸方案，说出来就行。消息出来几小时，Figma 股价直接跌了 6.84%。要知道纳斯达克刚实现 13 连涨，Figma 却在大盘暴涨的背景下被击穿。有网友在 Claude 评论区说：“Claude 彻底摧毁了价值 1 万亿美元的设计行业。”我第一时间冲进去试了。试完，我确实有点慌。
 
 ## 不只是"AI 画图"
 
@@ -74,3 +74,13 @@ Claude Design 在 onboarding 的时候会读取你的代码库和设计文件，
 对 Claude Design 感兴趣？想聊聊 AI 工具到底好不好用？我建了个交流平台，大家一起试、一起聊、一起踩坑。
 
 扫码进群👇
+
+![](/images/2026-07-17-claude-design/01.jpg)
+
+![](/images/2026-07-17-claude-design/02.png)
+
+![](/images/2026-07-17-claude-design/03.webp)
+
+![](/images/2026-07-17-claude-design/04.png)
+
+![](/images/2026-07-17-claude-design/05.png)
