@@ -221,11 +221,20 @@ function normalizeOriginalUrl(input) {
   try {
     const parsed = new URL(String(input).trim());
     parsed.protocol = "https:";
-    parsed.hostname = parsed.hostname.toLowerCase().replace(/^www\./, "");
-    if (parsed.hostname === "twitter.com") parsed.hostname = "x.com";
-    parsed.search = "";
+    const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+    parsed.hostname = host === "twitter.com" ? "x.com" : host;
     parsed.hash = "";
     parsed.pathname = parsed.pathname.replace(/\/+$/, "");
+    if (parsed.hostname === "mp.weixin.qq.com") {
+      const kept = new URLSearchParams();
+      for (const key of ["__biz", "idx", "mid", "sn"]) {
+        const value = parsed.searchParams.get(key);
+        if (value !== null) kept.set(key, value);
+      }
+      parsed.search = kept.toString();
+    } else {
+      parsed.search = "";
+    }
     return parsed.toString();
   } catch {
     return String(input).trim();
