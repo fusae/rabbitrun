@@ -10,11 +10,13 @@ const ROOT = process.cwd();
 const DRAFTS_DIR = path.join(ROOT, "drafts");
 const PROJECTS_DIR = path.join(ROOT, "content", "projects");
 const POSTS_DIR = path.join(ROOT, "content", "posts");
+const POST_IMAGES_DIR = path.join(POSTS_DIR, "images");
 const QUEUE_PATH = path.join(ROOT, "sync-queue.txt");
 const GITHUB_USER = "fusae";
 const TODAY = formatDate(new Date());
 const X_SCRIPT = path.join(os.homedir(), ".claude", "skills", "baoyu-danger-x-to-markdown", "scripts", "main.ts");
 const URL_SCRIPT = path.join(os.homedir(), ".claude", "skills", "baoyu-url-to-markdown", "scripts", "main.ts");
+const URL_SCRIPT_DIR = path.dirname(URL_SCRIPT);
 
 function formatDate(date) {
   const pad = (n) => String(n).padStart(2, "0");
@@ -23,13 +25,20 @@ function formatDate(date) {
 
 function parseArgs(argv) {
   let source = null;
+  const wechatPosts = [];
   for (const arg of argv) {
     if (arg.startsWith("--source=")) source = arg.slice("--source=".length);
+    if (arg.startsWith("--wechat-post=")) {
+      const value = arg.slice("--wechat-post=".length);
+      const separator = value.indexOf("=");
+      if (separator === -1) throw new Error("--wechat-post expects file=url");
+      wechatPosts.push({ file: value.slice(0, separator), url: value.slice(separator + 1) });
+    }
   }
   if (source && !["github", "queue"].includes(source)) {
     throw new Error(`Unknown source: ${source}`);
   }
-  return source ? [source] : ["github", "queue"];
+  return { sources: source ? [source] : ["github", "queue"], wechatPosts };
 }
 
 async function pathExists(filePath) {
@@ -303,6 +312,241 @@ function bodyFromMarkdown(markdown) {
   return parseFrontmatter(markdown).body.trim();
 }
 
+const WECHAT_JUNK_LINES = new Set([
+  "Original",
+  "AI帮我想个名",
+  "在小说阅读器读本章",
+  "去阅读",
+  "在小说阅读器中沉浸阅读",
+]);
+
+function isWechatItalicMetadata(line) {
+  const trimmed = line.trim();
+  if (!/^\*[^*]+\*$/.test(trimmed)) return false;
+  const inner = trimmed.slice(1, -1).trim();
+  return /(\d{4}年\d{1,2}月\d{1,2}日|\d{1,2}:\d{2}|广东|北京|上海|天津|重庆|香港|澳门|台湾|浙江|江苏|福建|山东|河南|湖北|湖南|江西|安徽|四川|贵州|云南|陕西|甘肃|青海|海南|辽宁|吉林|黑龙江|河北|山西|内蒙古|广西|西藏|宁夏|新疆)/.test(inner);
+}
+
+function isWechatShortAuthorLike(line) {
+  const trimmed = line.trim();
+  return trimmed.length > 0 && trimmed.length < 10 && !/[，。！？；：,.!?;:、（）()《》「」『」"'“”‘’\-—#*_`\[\]]/.test(trimmed);
+}
+
+function isWechatJunkLine(line) {
+  const trimmed = line.trim();
+  return (
+    trimmed === "" ||
+    trimmed.startsWith("#") ||
+    trimmed.startsWith("*#") ||
+    WECHAT_JUNK_LINES.has(trimmed) ||
+    isWechatItalicMetadata(line) ||
+    isWechatShortAuthorLike(line)
+  );
+}
+
+function collapseBlankLines(text) {
+  const lines = text.replace(/\r\n/g, "\n").split("\n");
+  const out = [];
+  let lastBlank = false;
+  for (const line of lines) {
+    const blank = line.trim() === "";
+    if (blank) {
+      if (!lastBlank) out.push("");
+    } else {
+      out.push(line);
+    }
+    lastBlank = blank;
+  }
+  return out.join("\n").replace(/\n*$/, "\n");
+}
+
+function cleanWechatBody(body) {
+  const lines = body.replace(/\r\n/g, "\n").split("\n");
+  const tailStart = lines.findIndex((line) => line.includes("预览时标签不可点"));
+  const trimmedTail = tailStart === -1 ? lines : lines.slice(0, tailStart);
+  const start = trimmedTail.findIndex((line) => line.trim().length > 30 && !isWechatJunkLine(line));
+  return collapseBlankLines((start === -1 ? trimmedTail : trimmedTail.slice(start)).join("\n"));
+}
+
+function decodeHtmlEntities(text) {
+  return text
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
+function extractWechatImageUrls(html) {
+  const contentMatch = html.match(/<div[^>]+id=["']js_content["'][\s\S]*?<\/div>\s*<script/i);
+  const content = contentMatch ? contentMatch[0] : html;
+  const urls = [];
+  const seen = new Set();
+  for (const match of content.matchAll(/<img\b[^>]*>/gi)) {
+    const tag = match[0];
+    const source = tag.match(/\s(?:src|data-src)=["']([^"']+)["']/i);
+    const dataSource = tag.match(/\sdata-src=["']([^"']+)["']/i);
+    const rawUrl = dataSource?.[1] || source?.[1];
+    if (!rawUrl) continue;
+    const url = decodeHtmlEntities(rawUrl);
+    if (!/\/\/mmbiz\.qpic\.cn\//i.test(url) || seen.has(url)) continue;
+    seen.add(url);
+    urls.push(url);
+  }
+  return urls;
+}
+
+function hasWechatErrorPageHtml(html) {
+  return WECHAT_ERROR_MARKERS.some((marker) => html.includes(marker)) || html.includes("secitptpage/verify");
+}
+
+function extensionFromContentType(contentType) {
+  const normalized = String(contentType || "").split(";")[0].trim().toLowerCase();
+  return {
+    "image/jpeg": "jpg",
+    "image/jpg": "jpg",
+    "image/png": "png",
+    "image/gif": "gif",
+    "image/webp": "webp",
+    "image/svg+xml": "svg",
+  }[normalized] || "jpg";
+}
+
+async function downloadWechatImages(originalUrl, slug) {
+  let imageUrls = [];
+  const response = await fetch(originalUrl, {
+    headers: {
+      Referer: "https://mp.weixin.qq.com/",
+      "User-Agent": "Mozilla/5.0 rabbitrun-sync",
+    },
+  });
+  if (!response.ok) {
+    console.warn(`[wechat] image scan failed ${originalUrl}: ${response.status} ${response.statusText}`);
+  } else {
+    const html = await response.text();
+    if (!hasWechatErrorPageHtml(html)) imageUrls = extractWechatImageUrls(html);
+  }
+  if (imageUrls.length === 0) imageUrls = await extractWechatImageUrlsWithChrome(originalUrl);
+  if (imageUrls.length === 0) throw new Error("wechat image scan found 0 images");
+
+  const dir = path.join(POST_IMAGES_DIR, slug);
+  await rm(dir, { recursive: true, force: true });
+  await mkdir(dir, { recursive: true });
+
+  const images = [];
+  let index = 1;
+  for (const imageUrl of imageUrls) {
+    try {
+      const imageResponse = await fetch(imageUrl, {
+        headers: {
+          Referer: originalUrl,
+          "User-Agent": "Mozilla/5.0 rabbitrun-sync",
+        },
+      });
+      if (!imageResponse.ok) throw new Error(`${imageResponse.status} ${imageResponse.statusText}`);
+      const ext = extensionFromContentType(imageResponse.headers.get("content-type"));
+      const name = `${String(index).padStart(2, "0")}.${ext}`;
+      await writeFile(path.join(dir, name), Buffer.from(await imageResponse.arrayBuffer()));
+      images.push({ source: imageUrl, markdown: `![](/images/${slug}/${name})` });
+      index += 1;
+    } catch (error) {
+      console.warn(`[wechat] image download skipped ${imageUrl}: ${error instanceof Error ? error.message : String(error)}`);
+      images.push({ source: imageUrl, markdown: "[图片加载失败]" });
+    }
+  }
+  return images;
+}
+
+async function extractWechatImageUrlsWithChrome(originalUrl) {
+  const tmpDir = await mkdtemp(path.join(ROOT, ".rabbitrun-sync-"));
+  const scriptPath = path.join(tmpDir, "wechat-image-scan.ts");
+  const cdpPath = pathToFileURL(path.join(URL_SCRIPT_DIR, "cdp.ts")).href;
+  const script = `
+import { CdpConnection, getFreePort, launchChrome, waitForChromeDebugPort, waitForNetworkIdle, waitForPageLoad, autoScroll, evaluateScript, killChrome } from ${JSON.stringify(cdpPath)};
+
+const url = process.argv[2];
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const port = await getFreePort();
+const chrome = await launchChrome(url, port, false);
+let cdp = null;
+try {
+  const wsUrl = await waitForChromeDebugPort(port, 30_000);
+  cdp = await CdpConnection.connect(wsUrl, 10_000);
+  const targets = await cdp.send("Target.getTargets");
+  const pageTarget = targets.targetInfos.find((target) => target.type === "page" && target.url.startsWith("http"));
+  if (!pageTarget) throw new Error("No page target found");
+  const attached = await cdp.send("Target.attachToTarget", { targetId: pageTarget.targetId, flatten: true });
+  const sessionId = attached.sessionId;
+  await cdp.send("Network.enable", {}, { sessionId });
+  await cdp.send("Page.enable", {}, { sessionId });
+  await Promise.race([waitForPageLoad(cdp, sessionId, 15_000), sleep(8_000)]);
+  await waitForNetworkIdle(cdp, sessionId, 2_000);
+  await sleep(1_500);
+  await autoScroll(cdp, sessionId, 8, 600);
+  await sleep(1_000);
+  const result = await evaluateScript(cdp, sessionId, String.raw\`
+(() => {
+  const text = document.body?.innerText || "";
+  const html = document.documentElement?.innerHTML || "";
+  const urls = Array.from(document.querySelectorAll("#js_content img, img"))
+    .map((img) => img.getAttribute("data-src") || img.getAttribute("data-original") || img.currentSrc || img.getAttribute("src"))
+    .filter(Boolean)
+    .map((url) => {
+      try { return new URL(url, document.baseURI).href; } catch { return url; }
+    })
+    .filter((url) => /\\/\\/mmbiz\\.qpic\\.cn\\//i.test(url));
+  return {
+    hasVerifyPage: html.includes("secitptpage/verify"),
+    errorMarkers: ["环境异常", "Refreshing too often", "请在微信客户端打开", "参数错误", "该内容已被发布者删除"].filter((marker) => text.includes(marker)),
+    urls: Array.from(new Set(urls)),
+  };
+})()
+  \`, 30_000);
+  console.log(JSON.stringify(result));
+} finally {
+  if (cdp) {
+    try { await cdp.send("Browser.close", {}, { timeoutMs: 5_000 }); } catch {}
+    cdp.close();
+  }
+  killChrome(chrome);
+}
+`;
+  try {
+    await writeFile(scriptPath, script, "utf8");
+    const { stdout } = await runCommand("npx", ["-y", "bun", scriptPath, originalUrl]);
+    const result = JSON.parse(stdout.trim().split(/\r?\n/).at(-1));
+    const reasons = Array.isArray(result.errorMarkers) ? result.errorMarkers : [];
+    if (reasons.length > 0 || result.hasVerifyPage) {
+      throw new Error(`wechat image scan error page (${reasons.join("; ") || "verify page"})`);
+    }
+    return Array.isArray(result.urls) ? result.urls : [];
+  } finally {
+    await rm(tmpDir, { recursive: true, force: true });
+  }
+}
+
+function applyWechatImages(markdownBody, images) {
+  if (images.length === 0) return markdownBody;
+  let index = 0;
+  const replaced = markdownBody.replace(/!\[[^\]]*]\((https?:\/\/mmbiz\.qpic\.cn\/[^)]+)\)/gi, () => {
+    const image = images[index++];
+    return image?.markdown || "[图片加载失败]";
+  });
+  if (index > 0) return replaced;
+  return `${replaced.trim()}\n\n${images.map((image) => image.markdown).join("\n\n")}\n`;
+}
+
+async function buildPostMarkdown(converted, source, originalUrl, slug) {
+  let body = bodyFromMarkdown(converted);
+  if (source === "wechat") {
+    body = cleanWechatBody(body);
+    const images = await downloadWechatImages(originalUrl, slug);
+    body = applyWechatImages(body, images);
+    return { body, imageCount: images.filter((image) => image.markdown.startsWith("![](")).length };
+  }
+  return { body, imageCount: 0 };
+}
+
 const WECHAT_ERROR_MARKERS = [
   "环境异常",
   "Refreshing too often",
@@ -387,7 +631,6 @@ async function syncQueue() {
         }
       }
       const title = titleFromMarkdown(converted, normalized);
-      const body = bodyFromMarkdown(converted);
       const fields = {
         title,
         date: TODAY,
@@ -396,9 +639,12 @@ async function syncQueue() {
         locale: "zh",
       };
       const file = await uniqueDraftPath(slugify(title));
+      const slug = path.basename(file, ".md");
+      const { body, imageCount } = await buildPostMarkdown(converted, source, normalized, slug);
       await writeFile(file, `${buildFrontmatter(fields)}\n${body}\n`, "utf8");
       seenUrls.add(normalized);
       created += 1;
+      if (source === "wechat") console.log(`[wechat] images=${imageCount} slug=${slug}`);
     } catch (error) {
       console.error(`[queue] failed ${normalized}: ${error instanceof Error ? error.message : String(error)}`);
       keep.push(line);
@@ -411,8 +657,34 @@ async function syncQueue() {
   console.log(`[queue] created=${created} skipped=${skipped} failed=${failed}`);
 }
 
+async function refreshWechatPost(file, originalUrl) {
+  const target = path.resolve(ROOT, file);
+  if (!target.startsWith(POSTS_DIR + path.sep)) throw new Error(`Refusing to write outside posts: ${file}`);
+  const normalized = normalizeOriginalUrl(originalUrl);
+  const converted = await convertQueuedUrl(normalized, "wechat");
+  const parsed = parseFrontmatter(converted);
+  const errorReasons = getWechatErrorPageReasons(converted, parsed.data);
+  if (errorReasons.length > 0) throw new Error(`wechat error page (${errorReasons.join("; ")})`);
+  const title = titleFromMarkdown(converted, normalized);
+  const slug = path.basename(target, ".md");
+  const { body, imageCount } = await buildPostMarkdown(converted, "wechat", normalized, slug);
+  const fields = {
+    title,
+    date: TODAY,
+    source: "wechat",
+    original_url: normalized,
+    locale: "zh",
+  };
+  await writeFile(target, `${buildFrontmatter(fields)}\n${body}\n`, "utf8");
+  console.log(`[wechat-post] ${path.basename(target)} images=${imageCount}`);
+}
+
 async function main() {
-  const sources = parseArgs(process.argv.slice(2));
+  const { sources, wechatPosts } = parseArgs(process.argv.slice(2));
+  for (const post of wechatPosts) {
+    await refreshWechatPost(post.file, post.url);
+  }
+  if (wechatPosts.length > 0) return;
   for (const source of sources) {
     try {
       if (source === "github") await syncGithub();

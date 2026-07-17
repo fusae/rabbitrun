@@ -23,6 +23,7 @@ export default function (eleventyConfig) {
   eleventyConfig.addPlugin(HtmlBasePlugin);
   eleventyConfig.ignores.add("drafts/**");
   eleventyConfig.ignores.add("README.md");
+  eleventyConfig.addPassthroughCopy({ "content/posts/images": "images" });
 
   eleventyConfig.addGlobalData("site", site);
 
