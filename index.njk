@@ -13,7 +13,7 @@ title: rabbitrun
     {% for project in collections.projects %}
       {% if project.data.featured %}
         <div class="item">
-          <span class="year">{{ project.data.year }}</span> <b><a href="{{ project | projectUrl }}">{{ project.data.title }}</a></b> —
+          <span class="year">{{ project.data.year }}</span> <b><a href="{{ project | projectUrl }}" target="_blank" rel="noopener">{{ project.data.title }}</a></b> —
           <span class="desc">{{ project.templateContent | striptags | trim }}</span>
           <span class="meta">{{ project.data.language }}{% if project.data.stars %} · ⭐ {{ project.data.stars }}{% endif %}</span>
         </div>
