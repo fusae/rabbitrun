@@ -11,7 +11,8 @@ function byDateDesc(a, b) {
 }
 
 function projectUrl(project) {
-  return `/projects/${project.fileSlug}/`;
+  // 项目直接跳 GitHub 仓库，不生成详情页（详情页只有一句话简介，无意义）
+  return `https://github.com/${project.data.repo}`;
 }
 
 function postUrl(post) {
