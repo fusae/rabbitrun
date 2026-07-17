@@ -64,8 +64,3 @@ locale: zh
 ![](/images/2026-07-17-openclaw-agent-ai-agent/05.jpg)
 
 ![](/images/2026-07-17-openclaw-agent-ai-agent/06.jpg)
-
-![](/images/2026-07-17-openclaw-agent-ai-agent/07.png)
-
-![](/images/2026-07-17-openclaw-agent-ai-agent/08.png)
-

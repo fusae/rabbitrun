@@ -281,8 +281,3 @@ ounter(lineounter(lineounter(lineounter(lineounter(lineounter(lineounter(lineoun
 **文档信息**版本：1.0系统要求：Windows 10/11创建日期：2026-01-29预计阅读时间：15分钟实际操作时间：30分钟**命令行参考****CMD**：传统的Windows命令行**PowerShell**：功能更强大的命令行**Git Bash**：类Linux环境，熟悉Linux命令的用户推荐使用
 
 ![](/images/2026-07-17-windows-30-ai-openclaw/01.jpg)
-
-![](/images/2026-07-17-windows-30-ai-openclaw/02.png)
-
-![](/images/2026-07-17-windows-30-ai-openclaw/03.png)
-

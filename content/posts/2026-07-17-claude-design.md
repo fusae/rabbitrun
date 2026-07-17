@@ -80,7 +80,3 @@ Claude Design 在 onboarding 的时候会读取你的代码库和设计文件，
 ![](/images/2026-07-17-claude-design/02.png)
 
 ![](/images/2026-07-17-claude-design/03.webp)
-
-![](/images/2026-07-17-claude-design/04.png)
-
-![](/images/2026-07-17-claude-design/05.png)
