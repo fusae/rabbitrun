@@ -1,8 +1,9 @@
+import { HtmlBasePlugin } from "@11ty/eleventy";
 import pluginRss from "@11ty/eleventy-plugin-rss";
 
 const site = {
   title: "rabbitrun",
-  url: "https://rabbitrun.run"
+  url: process.env.SITE_URL || "https://fusae.github.io"
 };
 
 function byDateDesc(a, b) {
@@ -19,11 +20,14 @@ function postUrl(post) {
 
 export default function (eleventyConfig) {
   eleventyConfig.addPlugin(pluginRss);
+  eleventyConfig.addPlugin(HtmlBasePlugin);
   eleventyConfig.ignores.add("drafts/**");
+  eleventyConfig.ignores.add("README.md");
 
   eleventyConfig.addGlobalData("site", site);
 
-  eleventyConfig.addFilter("absoluteUrl", (url) => new URL(url, site.url).toString());
+  const pathPrefixUrl = eleventyConfig.getFilter("url");
+  eleventyConfig.addFilter("siteUrl", (url) => new URL(pathPrefixUrl(url), site.url).toString());
   eleventyConfig.addFilter("htmlDateString", (dateObj) => {
     return new Date(dateObj).toISOString().slice(0, 10);
   });
@@ -51,12 +55,12 @@ export default function (eleventyConfig) {
 
 ## Projects
 {% for project in collections.projects -%}
-- {{ project.data.title }} | {{ project | projectUrl }} | {{ project.data.year }}
+- {{ project.data.title }} | {{ project | projectUrl | url }} | {{ project.data.year }}
 {% endfor %}
 
 ## Posts
 {% for post in collections.posts -%}
-- {{ post.data.title }} | {{ post | postUrl }} | {{ post.data.date | htmlDateString }}
+- {{ post.data.title }} | {{ post | postUrl | url }} | {{ post.data.date | htmlDateString }}
 {% endfor %}
 `,
     {

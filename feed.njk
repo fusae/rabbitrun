@@ -6,17 +6,17 @@ eleventyExcludeFromCollections: true
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>{{ site.title }}</title>
   <subtitle>rabbitrun posts</subtitle>
-  <link href="{{ site.url }}/feed.xml" rel="self"/>
-  <link href="{{ site.url }}/"/>
+  <link href="{{ "/feed.xml" | siteUrl }}" rel="self"/>
+  <link href="{{ "/" | siteUrl }}"/>
   <updated>{{ collections.posts[0].data.date | dateToRfc3339 }}</updated>
-  <id>{{ site.url }}/</id>
+  <id>{{ "/" | siteUrl }}</id>
   {% for post in collections.posts %}
   <entry>
     <title>{{ post.data.title }}</title>
-    <link href="{{ site.url }}{{ post | postUrl }}"/>
+    <link href="{{ post | postUrl | siteUrl }}"/>
     <updated>{{ post.data.date | dateToRfc3339 }}</updated>
-    <id>{{ site.url }}{{ post | postUrl }}</id>
-    <content type="html">{{ post.templateContent | htmlToAbsoluteUrls(site.url) }}</content>
+    <id>{{ post | postUrl | siteUrl }}</id>
+    <content type="html">{{ post.templateContent | transformWithHtmlBase(site.url) }}</content>
   </entry>
   {% endfor %}
 </feed>
