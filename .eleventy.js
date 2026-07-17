@@ -19,6 +19,7 @@ function postUrl(post) {
 
 export default function (eleventyConfig) {
   eleventyConfig.addPlugin(pluginRss);
+  eleventyConfig.ignores.add("drafts/**");
 
   eleventyConfig.addGlobalData("site", site);
 
