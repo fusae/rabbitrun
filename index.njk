@@ -3,27 +3,37 @@ layout: layout.njk
 title: rabbitrun
 ---
 <section>
-  <h2>Projects</h2>
-  <ul>
-    {% for project in collections.projects %}
-      <li>
-        <a href="{{ project | projectUrl }}">{{ project.data.title }}</a>
-        <span>{{ project.data.year }}</span>
-        <span>{{ project.data.language }}</span>
-      </li>
-    {% endfor %}
-  </ul>
+  <h2>关于</h2>
+  <p>TODO: 待用户提供中文简介。占位简介：两三句话说清楚你是谁、在做什么、为什么值得读下去；在做 AI agent 与加密世界交界处的工具、内容和实验。</p>
+  <p>TODO: User-provided English bio pending. Brief placeholder: I write code and essays about AI agents, crypto, and the tools that connect them.</p>
 </section>
 
 <section>
-  <h2>Posts</h2>
-  <ul>
+  <h2>项目</h2>
+    {% for project in collections.projects %}
+      {% if project.data.featured %}
+        <div class="item">
+          <span class="year">{{ project.data.year }}</span> <b><a href="{{ project | projectUrl }}">{{ project.data.title }}</a></b> —
+          <span class="desc">{{ project.templateContent | striptags | trim }}</span>
+          <span class="meta">{{ project.data.language }}{% if project.data.stars %} · ⭐ {{ project.data.stars }}{% endif %}</span>
+        </div>
+      {% endif %}
+    {% endfor %}
+  <p><a href="/projects/">→ 全部项目</a></p>
+</section>
+
+<section>
+  <h2>文章</h2>
+  <ul class="posts">
     {% for post in collections.posts %}
+      {% if loop.index <= 5 %}
       <li>
+        <span class="date">{{ post.data.date | htmlDateString }}</span>
         <a href="{{ post | postUrl }}">{{ post.data.title }}</a>
-        <time datetime="{{ post.data.date | htmlDateString }}">{{ post.data.date | htmlDateString }}</time>
-        <span>{{ post.data.source }}</span>
+        <span class="src">{{ post.data.source | sourceLabel }}</span>
       </li>
+      {% endif %}
     {% endfor %}
   </ul>
+  <p><a href="/posts/">→ 全部文章</a></p>
 </section>

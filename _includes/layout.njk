@@ -1,22 +1,70 @@
 <!doctype html>
-<html lang="zh">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ title or site.title }}</title>
+    <style>
+      body {
+        max-width: 660px; margin: 0 auto; padding: 48px 20px 32px;
+        font-family: Georgia, "Songti SC", SimSun, serif;
+        font-size: 16px; line-height: 1.75; color: #222; background: #fff;
+      }
+      a { color: #0000cc; }
+      a:visited { color: #551a8b; }
+      a:hover { background: #ffffcc; }
+      header { margin-bottom: 40px; }
+      h1 { font-size: 26px; margin: 0 0 4px; font-weight: normal; letter-spacing: 1px; }
+      h1 a, h1 a:visited { color: #222; text-decoration: none; }
+      .tagline { color: #555; margin: 0 0 10px; }
+      .links { font-size: 14px; color: #999; margin: 0; }
+      .links a { margin-right: 4px; }
+      h2 {
+        font-size: 15px; font-weight: bold; letter-spacing: 3px;
+        color: #888; text-transform: uppercase;
+        border-bottom: 1px solid #ddd; padding-bottom: 6px;
+        margin: 44px 0 16px;
+      }
+      h3 { font-size: 18px; margin: 28px 0 8px; font-weight: normal; }
+      p { margin: 12px 0; }
+      .item { margin: 14px 0; }
+      .item .year, .posts .date, .meta-line {
+        color: #999; font-size: 13px; font-family: Menlo, monospace;
+      }
+      .item .year, .posts .date { margin-right: 10px; }
+      .item b a { color: #0000cc; }
+      .item .desc { color: #444; }
+      .item .meta { color: #999; font-size: 13px; margin-left: 4px; }
+      ul.posts { list-style: none; padding: 0; margin: 0; }
+      ul.posts li { margin: 9px 0; }
+      .src { font-size: 12px; color: #aaa; margin-left: 8px; }
+      article { margin-top: 38px; }
+      article h2 { margin-top: 0; }
+      article img { max-width: 100%; height: auto; }
+      footer {
+        margin-top: 56px; padding-top: 14px; border-top: 1px solid #ddd;
+        font-size: 13px; color: #999;
+      }
+      .counter { font-family: Menlo, monospace; color: #666; }
+    </style>
   </head>
   <body>
     <header>
       <h1><a href="/">{{ site.title }}</a></h1>
-      <nav>
-        <a href="/projects/">projects</a>
-        <a href="/posts/">posts</a>
-        <a href="/feed.xml">rss</a>
+      <p class="tagline">写代码，也写字。研究 AI agent 和加密世界的交界处。</p>
+      <p class="links">
+        <a href="https://x.com/rabbitrun_eth">X</a> ·
+        <a href="https://github.com/fusae">GitHub</a> ·
+        <a href="/feed.xml">RSS</a> ·
         <a href="/llms.txt">llms.txt</a>
-      </nav>
+      </p>
     </header>
     <main>
       {{ content | safe }}
     </main>
+    <footer>
+      © 2026 rabbitrun · 纯手工 HTML，无框架无追踪 ·
+      你是第 <span class="counter">001337</span> 位访客
+    </footer>
   </body>
 </html>

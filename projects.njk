@@ -1,16 +1,13 @@
 ---
 layout: layout.njk
-title: Projects
+title: Projects · rabbitrun
 permalink: /projects/
 ---
-<h2>Projects</h2>
-<ul>
+<h2>项目</h2>
   {% for project in collections.projects %}
-    <li>
-      <a href="{{ project | projectUrl }}">{{ project.data.title }}</a>
-      <span>{{ project.data.year }}</span>
-      <span>{{ project.data.language }}</span>
-      <span>{{ project.data.repo }}</span>
-    </li>
+    <div class="item">
+      <span class="year">{{ project.data.year }}</span> <b><a href="{{ project | projectUrl }}">{{ project.data.title }}</a></b> —
+      <span class="desc">{{ project.templateContent | striptags | trim }}</span>
+      <span class="meta">{{ project.data.language }}{% if project.data.stars %} · ⭐ {{ project.data.stars }}{% endif %} · {{ project.data.repo }}</span>
+    </div>
   {% endfor %}
-</ul>

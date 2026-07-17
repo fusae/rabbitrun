@@ -26,6 +26,13 @@ export default function (eleventyConfig) {
   eleventyConfig.addFilter("htmlDateString", (dateObj) => {
     return new Date(dateObj).toISOString().slice(0, 10);
   });
+  eleventyConfig.addFilter("sourceLabel", (source) => {
+    return {
+      wechat: "公众号",
+      x: "X",
+      zhihu: "知乎"
+    }[source] || source;
+  });
 
   eleventyConfig.addCollection("projects", (collectionApi) => {
     return collectionApi.getFilteredByGlob("content/projects/*.md").sort((a, b) => {

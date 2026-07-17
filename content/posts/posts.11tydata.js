@@ -1,5 +1,5 @@
 export default {
-  layout: "layout.njk",
+  layout: "detail.njk",
   eleventyComputed: {
     permalink: (data) => `/posts/${data.page.fileSlug}/`
   }

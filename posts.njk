@@ -1,15 +1,15 @@
 ---
 layout: layout.njk
-title: Posts
+title: Posts · rabbitrun
 permalink: /posts/
 ---
-<h2>Posts</h2>
-<ul>
+<h2>文章</h2>
+<ul class="posts">
   {% for post in collections.posts %}
     <li>
+      <span class="date">{{ post.data.date | htmlDateString }}</span>
       <a href="{{ post | postUrl }}">{{ post.data.title }}</a>
-      <time datetime="{{ post.data.date | htmlDateString }}">{{ post.data.date | htmlDateString }}</time>
-      <span>{{ post.data.source }}</span>
+      <span class="src">{{ post.data.source | sourceLabel }}</span>
     </li>
   {% endfor %}
 </ul>

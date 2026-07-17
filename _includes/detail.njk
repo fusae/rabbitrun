@@ -1,0 +1,12 @@
+---
+layout: layout.njk
+---
+<article>
+  <h2>{{ title }}</h2>
+  {% if date %}
+    <p class="meta-line">{{ date | htmlDateString }} · {{ source | sourceLabel }}</p>
+  {% else %}
+    <p class="meta-line">{{ year }} · {{ language }}{% if stars %} · ⭐ {{ stars }}{% endif %}{% if repo %} · {{ repo }}{% endif %}</p>
+  {% endif %}
+  {{ content | safe }}
+</article>
