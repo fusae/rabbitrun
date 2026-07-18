@@ -1,6 +1,6 @@
 ---
 title: "AI大神提出的LLM Wiki，解决了我“收藏一堆却从来不看”的痛点"
-date: 2026-07-17
+date: 2026-04-08
 source: wechat
 original_url: https://mp.weixin.qq.com/s?__biz=MzUxODQwNjMwOQ%3D%3D&idx=1&mid=2247484688&sn=8242d1b98b6b5552215f1a6fc37368d0
 locale: zh

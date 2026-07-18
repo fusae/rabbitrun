@@ -1,6 +1,6 @@
 ---
 title: "OpenClaw制作Agent实战教程：打造一个AI资讯日报Agent"
-date: 2026-07-17
+date: 2026-02-07
 source: wechat
 original_url: https://mp.weixin.qq.com/s?__biz=MzUxODQwNjMwOQ%3D%3D&idx=1&mid=2247484600&sn=4a3f6423afa526b274b6f26a2d473653
 locale: zh

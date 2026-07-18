@@ -1,6 +1,6 @@
 ---
 title: "影视飓风Tim连说恐怖背后：Seedance 2.0真正可怕的不是技术"
-date: 2026-07-17
+date: 2026-02-10
 source: wechat
 original_url: https://mp.weixin.qq.com/s?__biz=MzUxODQwNjMwOQ%3D%3D&idx=1&mid=2247484607&sn=61db102ad0cb9c19aeb6b2cc7344a7d4
 locale: zh

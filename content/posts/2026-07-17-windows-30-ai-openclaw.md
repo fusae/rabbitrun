@@ -1,6 +1,6 @@
 ---
 title: "Windows上30分钟搭建你的私人AI管家：OpenClaw新手完全指南"
-date: 2026-07-17
+date: 2026-02-01
 source: wechat
 original_url: https://mp.weixin.qq.com/s?__biz=MzUxODQwNjMwOQ%3D%3D&idx=1&mid=2247484559&sn=5538da1370e65a848486b8d5cc055c4b
 locale: zh

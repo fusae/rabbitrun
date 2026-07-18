@@ -1,6 +1,6 @@
 ---
 title: "Claude Design一出，设计师要失业了？"
-date: 2026-07-17
+date: 2026-04-20
 source: wechat
 original_url: https://mp.weixin.qq.com/s?__biz=MzUxODQwNjMwOQ%3D%3D&idx=1&mid=2247484733&sn=186ce84038db566bf3a752135b9126f9
 locale: zh

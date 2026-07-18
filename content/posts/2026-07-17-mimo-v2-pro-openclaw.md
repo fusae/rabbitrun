@@ -1,6 +1,6 @@
 ---
 title: "重磅！小米发布旗舰模型 MiMo-V2-Pro，深度适配 OpenClaw 框架"
-date: 2026-07-17
+date: 2026-03-19
 source: wechat
 original_url: https://mp.weixin.qq.com/s?__biz=MzUxODQwNjMwOQ%3D%3D&idx=1&mid=2247484612&sn=ac481eb811cb0a2e87581793ced3ef29
 locale: zh
